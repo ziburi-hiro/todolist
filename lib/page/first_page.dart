@@ -17,9 +17,8 @@ class _FirstPageState extends State<FirstPage> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.greenAccent,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 30.0, left: 30.0),
@@ -34,7 +33,7 @@ class _FirstPageState extends State<FirstPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 30.0, left: 30.0),
+                padding: const EdgeInsets.only(right: 30.0, left: 30.0,bottom: 30.0),
                 child: Container(
                   width: double.infinity,
                   child: ElevatedButton(

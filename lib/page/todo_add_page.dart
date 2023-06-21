@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TodoAddPage extends StatefulWidget {
@@ -9,6 +10,8 @@ class TodoAddPage extends StatefulWidget {
 
 class _TodoAddPageState extends State<TodoAddPage> {
   String _text = '';
+  List<DocumentSnapshot> documentList = [];
+  String orderDocumentInfo = '';
 
 
   @override
@@ -62,7 +65,27 @@ class _TodoAddPageState extends State<TodoAddPage> {
                 },
                 child: const Text('キャンセル'),
               ),
-            )
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                final snapshot = await FirebaseFirestore.instance.collection('users').get();
+                setState(() {
+                  documentList = snapshot.docs;
+                  print(documentList);
+                });
+              },
+              child: Text('ドキュメント一覧取得'),
+            ),
+
+            Column(
+              children: documentList.map((doc) {
+                return ListTile(
+                  title: Text('${doc['name']}さん'),
+                  subtitle: Text('${doc['age']}歳'),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),

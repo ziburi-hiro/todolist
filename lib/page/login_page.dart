@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todoapp/page/todolist_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -70,6 +71,9 @@ class _LoginPageState extends State<LoginPage> {
                     setState(() {
                       infoText = "ログインOK：${user.email}";
                     });
+                    if (user != null){
+                      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => TodoListPage(email:user.email!)));
+                    }
                   }catch (e) {
                     //ログインに失敗した場合
                     setState(() {
