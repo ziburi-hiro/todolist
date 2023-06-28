@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TodoAddPage extends StatefulWidget {
-  const TodoAddPage({Key? key}) : super(key: key);
+  const TodoAddPage({Key? key, required this.email}) : super(key: key);
+  final String email;
 
   @override
   State<TodoAddPage> createState() => _TodoAddPageState();
@@ -11,7 +12,6 @@ class TodoAddPage extends StatefulWidget {
 class _TodoAddPageState extends State<TodoAddPage> {
   String _text = '';
   List<DocumentSnapshot> documentList = [];
-  String orderDocumentInfo = '';
 
 
   @override
@@ -36,6 +36,9 @@ class _TodoAddPageState extends State<TodoAddPage> {
             const SizedBox(height: 8,),
 
             TextField(
+              decoration: const InputDecoration(
+                labelText: 'ToDoテキスト'
+              ),
               onChanged: (String value){
                 setState(() {
                   _text = value;
@@ -48,8 +51,18 @@ class _TodoAddPageState extends State<TodoAddPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(_text);
+                onPressed: () async {
+                  //現在の時刻取得
+                  final date = DateTime.now().toLocal().toIso8601String();
+                  final email = widget.email;
+                  //make a document
+                  await FirebaseFirestore.instance.collection('users').doc().set({
+                    'text' : _text,
+                    'email' : email,
+                    'date' : date,
+                  });
+                  
+                  Navigator.of(context).pop();
                 },
                 child: const Text('リスト追加'),
               ),

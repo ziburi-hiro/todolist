@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todoapp/page/first_page.dart';
 import 'package:todoapp/page/todo_add_page.dart';
 
 class TodoListPage extends StatefulWidget {
@@ -18,7 +19,7 @@ class _TodoListPageState extends State<TodoListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('リスト一覧',
+        title:Text('${widget.email}リスト一覧',
           style: TextStyle(
             fontWeight: FontWeight.w900,
             color: Colors.white,
@@ -26,8 +27,11 @@ class _TodoListPageState extends State<TodoListPage> {
         ),
         actions: [
           IconButton(
-            onPressed: (){
+            onPressed: () async {
+              //ログアウト処理
+              await FirebaseAuth.instance.signOut();
               Navigator.of(context).pop();
+              //await Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => FirstPage()));
             },
             icon: const Icon(Icons.logout),
             color: Colors.white,
@@ -36,6 +40,7 @@ class _TodoListPageState extends State<TodoListPage> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepPurpleAccent,
       ),
+
       body: ListView.builder(
         itemCount: todoList.length,
         itemBuilder: (context, index) {
@@ -53,7 +58,7 @@ class _TodoListPageState extends State<TodoListPage> {
           await FirebaseFirestore.instance.collection('users').doc('id_jkl').set({'name':'ikuko','age':56});
           final newListText = await Navigator.of(context).push(
             MaterialPageRoute(builder: (context){
-              return const TodoAddPage();
+              return TodoAddPage(email: widget.email);
           }),
           );
           if (newListText != null){
@@ -61,7 +66,6 @@ class _TodoListPageState extends State<TodoListPage> {
               todoList.add(newListText);
             });
           }
-          print(widget.email);
         },
         backgroundColor: Colors.deepPurpleAccent,
         child: const Icon(Icons.add,color: Colors.white,),
