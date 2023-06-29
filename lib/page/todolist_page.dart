@@ -1,25 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todoapp/page/first_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoapp/page/todo_add_page.dart';
+import '../main.dart';
 
-class TodoListPage extends StatefulWidget {
-  const TodoListPage({Key? key, required this.email}) : super(key: key);
-  final String email;
-
-  @override
-  State<TodoListPage> createState() => _TodoListPageState();
-}
-
-class _TodoListPageState extends State<TodoListPage> {
-  List<String> todoList = [];
+class TodoListPage extends ConsumerWidget {
+  const TodoListPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ///Providerから値を受け取る
+    final User user = ref.watch(userProvider.notifier).state!;
+    final AsyncValue<QuerySnapshot> asyncPostQuery = ref.watch(usersQueryProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title:Text('${widget.email}リスト一覧',
+        title:const Text('リスト一覧',
           style: TextStyle(
             fontWeight: FontWeight.w900,
             color: Colors.white,
@@ -41,31 +38,63 @@ class _TodoListPageState extends State<TodoListPage> {
         backgroundColor: Colors.deepPurpleAccent,
       ),
 
-      body: ListView.builder(
-        itemCount: todoList.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(todoList[index]),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Text('ログイン情報:${user.email}'),
+          ),
+          Expanded(
+            child: asyncPostQuery.when(
+              ///値が取得できた時
+              data: (QuerySnapshot query) {
+                return ListView(
+                  children: query.docs.map((document) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(document['text']),
+                        subtitle: Text(document['email']),
+                        trailing: document['email'] == user.email
+                            ? IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () async {
+                            // 投稿メッセージのドキュメントを削除
+                            await FirebaseFirestore.instance
+                                .collection('posts')
+                                .doc(document.id)
+                                .delete();
+                          },
+                        )
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+              ///値が読み込み中の時
+              loading: () {
+                return const Center(
+                  child: Text('読込中...'),
+                );
+              },
+              ///値の取得に失敗した時
+              error: (e, stackTrace) {
+                return Center(
+                  child: Text(e.toString()),
+                );
+              }
             ),
-          );
-        },
+          )
+        ],
       ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          //firebasecloudに値追加
-          await FirebaseFirestore.instance.collection('users').doc('id_jkl').set({'name':'ikuko','age':56});
-          final newListText = await Navigator.of(context).push(
-            MaterialPageRoute(builder: (context){
-              return TodoAddPage(email: widget.email);
-          }),
+          await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) {
+              return TodoAddPage();
+            })
           );
-          if (newListText != null){
-            setState(() {
-              todoList.add(newListText);
-            });
-          }
         },
         backgroundColor: Colors.deepPurpleAccent,
         child: const Icon(Icons.add,color: Colors.white,),

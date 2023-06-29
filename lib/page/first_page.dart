@@ -14,7 +14,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           height: double.infinity,
           child: Column(
@@ -22,11 +22,11 @@ class _FirstPageState extends State<FirstPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 30.0, left: 30.0),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context,MaterialPageRoute(builder: (context) => const MakeUserPage()));
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => MakeUserPage()));
                     },
                     child: const Text('ユーザー登録'),
                   ),
@@ -34,7 +34,7 @@ class _FirstPageState extends State<FirstPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 30.0, left: 30.0,bottom: 30.0),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {

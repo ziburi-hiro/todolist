@@ -1,21 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoapp/main.dart';
 
-class TodoAddPage extends StatefulWidget {
-  const TodoAddPage({Key? key, required this.email}) : super(key: key);
-  final String email;
-
-  @override
-  State<TodoAddPage> createState() => _TodoAddPageState();
-}
-
-class _TodoAddPageState extends State<TodoAddPage> {
-  String _text = '';
-  List<DocumentSnapshot> documentList = [];
-
+class TodoAddPage extends ConsumerWidget {
+  const TodoAddPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ///Providerから値を受け取る
+    final user = ref.watch(userProvider);
+    final messageText = ref.watch(messageProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('リスト追加画面',
@@ -31,18 +27,16 @@ class _TodoAddPageState extends State<TodoAddPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_text),
+            Text(messageText),
 
             const SizedBox(height: 8,),
 
             TextField(
               decoration: const InputDecoration(
-                labelText: 'ToDoテキスト'
+                  labelText: 'ToDoテキスト'
               ),
               onChanged: (String value){
-                setState(() {
-                  _text = value;
-                });
+                ref.watch(messageProvider.notifier).state = value;
               },
             ),
 
@@ -54,14 +48,14 @@ class _TodoAddPageState extends State<TodoAddPage> {
                 onPressed: () async {
                   //現在の時刻取得
                   final date = DateTime.now().toLocal().toIso8601String();
-                  final email = widget.email;
+                  final email = user!.email;
                   //make a document
                   await FirebaseFirestore.instance.collection('users').doc().set({
-                    'text' : _text,
+                    'text' : messageText,
                     'email' : email,
                     'date' : date,
                   });
-                  
+
                   Navigator.of(context).pop();
                 },
                 child: const Text('リスト追加'),
@@ -78,26 +72,6 @@ class _TodoAddPageState extends State<TodoAddPage> {
                 },
                 child: const Text('キャンセル'),
               ),
-            ),
-
-            ElevatedButton(
-              onPressed: () async {
-                final snapshot = await FirebaseFirestore.instance.collection('users').get();
-                setState(() {
-                  documentList = snapshot.docs;
-                  print(documentList);
-                });
-              },
-              child: Text('ドキュメント一覧取得'),
-            ),
-
-            Column(
-              children: documentList.map((doc) {
-                return ListTile(
-                  title: Text('${doc['name']}さん'),
-                  subtitle: Text('${doc['age']}歳'),
-                );
-              }).toList(),
             ),
           ],
         ),

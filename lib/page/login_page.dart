@@ -1,24 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoapp/page/todolist_page.dart';
 
-class LoginPage extends StatefulWidget {
+import '../main.dart';
+
+class LoginPage extends ConsumerWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ///Providerから値を受け取る
+    final infoText = ref.watch(infoTextProvider);
+    final email = ref.watch(emailProvider);
+    final password = ref.watch(passwordProvider);
 
-class _LoginPageState extends State<LoginPage> {
-  // 入力されたメールアドレス
-  String loginUserEmail = "";
-  // 入力されたパスワード
-  String loginUserPassword = "";
-  // 登録・ログインに関する情報を表示
-  String infoText = "";
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ログイン画面',
@@ -31,30 +27,28 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Column(
             children: <Widget>[
               TextFormField(
                 // テキスト入力のラベルを設定
-                decoration: InputDecoration(labelText: "メールアドレス"),
+                decoration: const InputDecoration(labelText: "メールアドレス"),
                 onChanged: (String value) {
-                  setState(() {
-                    loginUserEmail = value;
-                  });
+                  ref.watch(emailProvider.notifier).state = value;
                 },
               ),
               const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(labelText: "パスワード（６文字以上）"),
+                decoration: const InputDecoration(labelText: "パスワード（６文字以上）"),
                 // パスワードが見えないようにする
                 obscureText: true,
                 onChanged: (String value) {
-                  setState(() {
-                    loginUserPassword = value;
-                  });
+                  ref.watch(passwordProvider.notifier).state = value;
                 },
               ),
+
               const SizedBox(height: 8),
+
               ElevatedButton(
                 onPressed: () async {
                   try {
@@ -62,23 +56,19 @@ class _LoginPageState extends State<LoginPage> {
                     final FirebaseAuth auth = FirebaseAuth.instance;
                     final UserCredential result =
                     await auth.signInWithEmailAndPassword(
-                      email: loginUserEmail,
-                      password: loginUserPassword,
+                      email: email,
+                      password: password,
                     );
 
                     //ログインに成功した場合
-                    final User user = result.user!;
-                    setState(() {
-                      infoText = "ログインOK：${user.email}";
-                    });
-                    if (user != null){
-                      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => TodoListPage(email:user.email!)));
+                    // 登録したユーザー情報
+                    ref.watch(userProvider.notifier).state = result.user;
+                    if (result.user != null){
+                      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => TodoListPage()));
                     }
                   }catch (e) {
                     //ログインに失敗した場合
-                    setState(() {
-                      infoText = "ログインNG：${e.toString()}";
-                    });
+                    ref.watch(infoTextProvider.notifier).state = 'ログインに失敗しました:${e.toString()}';
                   }
                 },
                 child: const Text("ログイン"),
