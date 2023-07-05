@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoapp/main.dart';
+import 'package:todoapp/page/admin_mobile.dart';
 
 class TodoAddPage extends ConsumerWidget {
   const TodoAddPage({Key? key}) : super(key: key);
@@ -71,6 +72,20 @@ class TodoAddPage extends ConsumerWidget {
                   Navigator.of(context).pop();
                 },
                 child: const Text('キャンセル'),
+              ),
+            ),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) {
+                        return AdminMobilePage();
+                      })
+                  );
+                },
+                child: const Text('Test'),
               ),
             ),
           ],

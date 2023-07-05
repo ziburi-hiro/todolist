@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todoapp/page/Make_User_page.dart';
 import 'package:todoapp/page/login_page.dart';
+import 'package:todoapp/page/welcome_page.dart';
 
 class FirstPage extends StatefulWidget {
   const FirstPage({Key? key}) : super(key: key);
@@ -41,6 +42,18 @@ class _FirstPageState extends State<FirstPage> {
                       Navigator.push(context,MaterialPageRoute(builder: (context) => const LoginPage()));
                     },
                     child: const Text('ログイン'),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 30.0, left: 30.0,bottom: 30.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => const WelcomePage()));
+                    },
+                    child: const Text('Test'),
                   ),
                 ),
               )
